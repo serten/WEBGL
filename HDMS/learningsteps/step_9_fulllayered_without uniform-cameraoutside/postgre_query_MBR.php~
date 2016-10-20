@@ -1,0 +1,120 @@
+<?php
+$long=$_GET['long'];
+$lat=$_GET['lat'];
+$height=$_GET['height'];
+$LOD=$_GET['LOD'];
+
+$varLOD=$LOD/5;
+$LOD=$LOD/5;
+$height=$height*0.1;
+
+$top=$lat+$height;
+$bottom=$lat-$height;
+$left=$long-$height;
+$right=$long+$height;
+
+//echo phpinfo();
+ini_set('display_errors', 1);
+//echo "varLOD:".$LOD;
+
+control();
+
+function control()
+{
+	global $top, $left, $bottom, $right,$varLOD,$LOD;
+	$conn = pg_connect("host=127.0.0.1 port=5432 dbname=postgres user=postgres password=postgres");
+	if (!$conn) {
+	  echo "An error occurred.\n";
+	  exit;
+	}
+	else
+	{
+		//echo "ok";
+	}
+
+	$result = pg_query($conn, "SELECT COUNTRYID,COUNTRYNAME, ST_AsGeoJSON(COUNTRYCOORDINATES) FROM COUNTRIES WHERE countrycoordinates && ST_MakeEnvelope($top, $left, $bottom, $right, 4326)");
+	//$result = pg_query($conn, "SELECT S.COUNTRYID,S.COUNTRYNAME, ST_AsGeoJSON(S.COUNTRYCOORDINATES) FROM (ST_Intersection(countrycoordinates, ST_GeomFromText('POLYGON(($left $top, $right $top, $right $bottom, $left $bottom, $left $top))', 4326 ))) AS S");
+
+/*SELECT *
+FROM countries
+WHERE countrycoordinates && ST_MakeEnvelope(40.9351, 28.3866, 36.201, 39.5138, 4326);*/
+
+	if (!$result) {
+	  echo "An error occurred.\n";
+	  exit;
+	}
+		
+	$firstcountry=true;
+
+	echo "{\"var\":["; 
+
+	//echo "<table border=\"1\">";
+
+	while ($row = pg_fetch_row($result)) {
+	  //the name $row would be better if was $column from understanding point of view
+	//echo "<tr>";
+	  //foreach ($row as &$rr)
+	  //{
+	
+		//if($rr[0]==="{")
+		//{	
+				
+
+				$decodedText = html_entity_decode($row[2]);
+				$r = json_decode($decodedText, true);
+				//echo "<td>";
+				if($firstcountry)
+				{
+					echo "[";
+					$firstcountry=false;
+				}
+				else
+				{
+					echo",[";
+				}	
+				$firstpair=true;
+				foreach ($r["coordinates"][0] as $coord)
+				{
+					if($varLOD<0)
+					{
+						if($firstpair)
+						{
+							echo "[".$coord[0].",".$coord[1]."]";	
+							$firstpair=false;
+						}
+						else
+						{
+							echo ",[".$coord[0].",".$coord[1]."]";
+						}
+						$varLOD=$LOD;
+					}
+					else
+					{
+						$varLOD--;
+					}
+				
+				}
+				echo "]";
+				//echo "</td>";	
+				
+			
+				
+					
+				
+			
+				
+		//}	
+		//else 
+		//{
+		//	echo "<td>".$rr."</td> ";
+			
+		//}
+	  //}
+	  
+	 //echo "</tr>";
+	}
+
+   //echo "</table>";
+   echo "]}";
+}	
+?>	

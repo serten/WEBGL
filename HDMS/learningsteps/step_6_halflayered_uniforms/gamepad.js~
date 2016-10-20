@@ -1,0 +1,201 @@
+var cameraControl=true;
+
+var hasGP = false;
+    var repGP;
+
+    function canGame() {
+        return "getGamepads" in navigator;
+    }
+
+    function reportOnGamepad() {
+        var gp = navigator.getGamepads()[0];
+        var html = "";
+            html += "id: "+gp.id+"<br/>";
+
+        for(var i=0;i<gp.buttons.length;i++) {
+            html+= "Button "+(i+1)+": ";
+            if(gp.buttons[i].pressed)
+	    {
+		html+= " pressed";
+    if(i==0)
+    {
+
+        cameraControl=false;
+
+    }
+    if(i==3)
+    {
+      cameraControl=true;
+    }
+
+
+    if(cameraControl)
+    {
+      if(i==12)
+      {
+        camera.position[0]+=Math.cos(radians(horizontalAngle))*0.1;
+        camera.position[2]+=Math.sin(radians(horizontalAngle))*0.1;
+        lookandposition()
+
+      }
+      if(i==13)
+      {
+         camera.position[0]-=Math.cos(radians(horizontalAngle))*0.1;
+        camera.position[2]-=Math.sin(radians(horizontalAngle))*0.1;
+        lookandposition();
+      }
+      if(i==14)
+      {
+        camera.position[0]-=Math.cos(radians(horizontalAngle+90))*0.1;
+        camera.position[2]-=Math.sin(radians(horizontalAngle+90))*0.1;
+        lookandposition();
+      }
+      if(i==15)
+
+      {
+        camera.position[0]+=Math.cos(radians(horizontalAngle+90))*0.1;
+        camera.position[2]+=Math.sin(radians(horizontalAngle+90))*0.1;
+        lookandposition();
+      }
+	if(i==6)
+		{
+			 camera.position[1]+=0.1;
+			lookandposition();
+		}
+
+		if(i==4)
+		{
+			 camera.position[1]-=0.1;
+			lookandposition();
+		}
+    }
+    else
+    {
+      if(i==12)
+      {
+        //obj[0].animationOn=true;
+        obj[0].translationVector[0]=0.1+obj[0].translationMatrix[12];
+	movelight(0,obj[0].translationVector[0],obj[0].translationMatrix[13],obj[0].translationVector[2]);
+	
+
+      }
+      if(i==13)
+      {
+        //obj[0].animationOn=true;
+        obj[0].translationVector[0]=obj[0].translationMatrix[12]-0.1;
+movelight(0,obj[0].translationVector[0],obj[0].translationMatrix[13],obj[0].translationVector[2]);
+      }
+      if(i==14)
+      {
+        //obj[0].animationOn=true;
+        obj[0].translationVector[2]=obj[0].translationMatrix[14]-0.1;
+movelight(0,obj[0].translationVector[0],obj[0].translationMatrix[13],obj[0].translationVector[2]);
+      }
+      if(i==15)
+
+      {
+        //obj[0].animationOn=true;
+        obj[0].translationVector[2]=obj[0].translationMatrix[14]+0.1;
+movelight(0,obj[0].translationVector[0],obj[0].translationMatrix[13],obj[0].translationVector[2]);
+      }
+
+	if(i==6)
+		{
+			obj[0].translationVector[1]=0.1+obj[0].translationMatrix[13];
+			movelight(0,obj[0].translationVector[0],obj[0].translationVector[1],obj[0].translationVector[2]);
+		}
+
+		if(i==4)
+		{
+			obj[0].translationVector[1]=obj[0].translationMatrix[13]-0.1;
+			movelight(0,obj[0].translationVector[0],obj[0].translationVector[1],obj[0].translationVector[2]);
+	}
+
+    }
+
+		
+
+		if(i==7)
+		{
+			camera.FOV-=0.1;
+			lookandposition();
+		}
+
+		if(i==5)
+		{
+			camera.FOV+=0.1;
+			lookandposition();
+		}
+
+		if(i==9)
+		{
+			toggleFullScreen();
+		}
+	    }
+            html+= "<br/>";
+        }
+
+        for(var i=0;i<gp.axes.length; i+=2) {
+            html+= "Stick "+(Math.ceil(i/2)+1)+": "+gp.axes[i]+","+gp.axes[i+1]+"<br/>";
+
+	    if(gp.axes[3]<0.0)
+	    {
+		changeHorizontalAngle(gp.axes[3]);
+
+	    }
+
+	    if(gp.axes[3]>0.0)
+	    {
+		changeHorizontalAngle(gp.axes[3]);
+
+	    }
+
+	    if(gp.axes[2]>0.0)
+	    {
+		changeVerticalAngle(-gp.axes[2]);
+	    }
+
+
+	    if(gp.axes[2]<0.0)
+	    {
+		changeVerticalAngle(-gp.axes[2]);
+
+	    }
+
+
+        }
+
+        //$("#gamepadDisplay").html(html);
+    }
+
+    $(document).ready(function() {
+
+        if(canGame()) {
+
+            var prompt = "To begin using your gamepad, connect it and press any button!";
+            $("#gamepadPrompt").text(prompt);
+
+            $(window).on("gamepadconnected", function() {
+                hasGP = true;
+                $("#gamepadPrompt").html("Gamepad connected!");
+                console.log("connection event");
+                repGP = window.setInterval(reportOnGamepad,0.5);
+            });
+
+            $(window).on("gamepaddisconnected", function() {
+                console.log("disconnection event");
+                $("#gamepadPrompt").text(prompt);
+                window.clearInterval(repGP);
+            });
+
+            //setup an interval for Chrome
+            var checkGP = window.setInterval(function() {
+                console.log('checkGP');
+                if(navigator.getGamepads()[0]) {
+                    if(!hasGP) $(window).trigger("gamepadconnected");
+                    window.clearInterval(checkGP);
+                }
+            }, 500);
+        }
+
+    });

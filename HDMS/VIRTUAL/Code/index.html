@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="webgl-utils.js"></script>
+    <script src ="math.js"></script>
+    <script src ="Teapot.js"></script>
+    <script src ="material.js"></script>
+    <script src="program.js"></script>
+    <script src="lighting.js"></script>
+    <script src="merrygoround.js"></script>
+    <script src="seesaw.js"></script>
+    <script src="sphere.js"></script>
+    <script src="sphere_small.js"></script>
+    <script src="swing.js"></script>
+    <script src="slide.js"></script>
+    <script src="magic.js"></script>
+    <script src="Earth.js"></script>
+    <script src="pnglib.js"></script>
+    <script src="sky.js"></script>
+    <script src="sphere.js"></script>
+    <script src="plane.js"></script>
+    <script src="box.js"></script>
+    <link href="main.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+
+<canvas id="canvas" width="400px" height="300px" onclick="webGLStart();"></canvas>
+    <div id="error" width="100%" height="100%"><h1>Please Align Device Correctly<br/><img src="img/phone.png" class="centeralign" width="50%"></img></h1></div>
+    <div id="debug" width="100%" height="100%">
+        <div id ="X" width="100px" height="100px"></div>
+        <div id ="Y" width="100px" height="100px"></div>
+        <div id ="Z" width="100px" height="100px"></div>
+    </div>
+<script id="shader-fs" type="x-shader/x-fragment">
+    
+    precision mediump float;
+    
+    struct Light
+    {
+        vec3 direction;
+        vec3 color;
+    };
+    
+    varying vec2 vTextureCoord;
+    varying vec3 vNormal;
+    
+    uniform Light lights[10];
+    uniform sampler2D uSampler;
+    uniform vec3 ambient;
+    uniform int num_lights;
+
+    uniform vec3 diffuse_cofficient;
+    uniform vec3 specular_cofficient;
+    uniform vec3 ambient_cofficient;
+    uniform float shininess;
+    uniform bool isEdgeDetection;
+    void main(void) {
+        vec4 temp = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        vec3 diffuse_cofficient_text = temp.xyz; 
+        vec3 ambient_cofficient_text = temp.xyz;   
+        vec3 lightweight = vec3(ambient[0] * ambient_cofficient_text[0], ambient[1] * ambient_cofficient_text[1], ambient[2] * ambient_cofficient_text[2]);
+        vec3 eyeDirection = vec3(0, 0, -1);
+        bool contor = false;
+        for (int i = 0; i < 10; i++) {
+            if (i == num_lights) {
+                break;
+            }
+            vec3 lightDirection = normalize(lights[i].direction);
+            vec3 normal = normalize(vNormal);
+            vec3 reflectionDirection = reflect(lightDirection, normal);
+            float NdotE = dot(normal, eyeDirection);
+            float NdotL = dot(normal, lightDirection);
+            if (NdotE > 0.0 && NdotL > 0.0) {
+                vec3 reflectionDirection = reflect(lightDirection, normal);
+                float s = pow(max(dot(reflectionDirection, eyeDirection), 0.0), shininess);
+                float d = max(dot(normal, lightDirection), 0.0);
+                if (d < 0.3) {
+                    d = 0.3;
+                }
+                else if (d < 0.75) {
+                    d = 0.75;
+                }
+                else {
+                    d = 1.0;
+                }
+                for (int j = 0; j < 3; j++) {
+                    lightweight[j] += d * lights[i].color[j] * diffuse_cofficient_text[j] + s * lights[i].color[j] * specular_cofficient[j];
+                }
+            }
+            else {
+                vec3 reflectionDirection = reflect(lightDirection, -normal);
+                float s = pow(max(dot(reflectionDirection, eyeDirection), 0.0), shininess);
+                float d = max(dot(normal, lightDirection), 0.0);
+                if (d < 0.3) {
+                    d = 0.3;
+                }
+                else if (d < 0.75) {
+                    d = 0.75;
+                }
+                else {
+                    d = 1.0;
+                }
+                for (int j = 0; j < 3; j++) {
+                    lightweight[j] += d * lights[i].color[j] * diffuse_cofficient_text[j] + s * lights[i].color[j] * specular_cofficient[j];
+                }
+            }
+            if (abs(dot(eyeDirection, normal)) < mix(0.35, 0.1, max(0.0, dot(normal, lightDirection)))) {
+                contor = contor || true;
+            }
+        }
+        if (contor && isEdgeDetection) {
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+        else {
+            gl_FragColor = vec4(min(lightweight[0], 1.0), min(lightweight[1], 1.0), min(lightweight[2], 1.0), 1.0);
+        }
+    }
+</script>
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec3 aVertexNormal;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    uniform mat3  uNMatrix;
+
+    varying vec4 vColor;
+    varying vec2 vTextureCoord;
+    varying vec3 vNormal;
+
+
+    void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+        vNormal = uNMatrix * aVertexNormal;
+    }
+</script>
+
+</body>
+</html>

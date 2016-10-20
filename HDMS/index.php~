@@ -1,0 +1,21 @@
+
+
+<?php
+error_reporting(E_ALL);
+$portName = $_SERVER['REMOTE_PORT'];
+$ip = $_SERVER['REMOTE_ADDR'];
+
+$handle = fopen("connection","w");
+
+fwrite($handle, $ip);
+
+fwrite($handle, "\n");
+
+fwrite($handle, $portName);
+
+echo "hello = $ip : $portName";
+
+fclose($handle);
+
+
+?>

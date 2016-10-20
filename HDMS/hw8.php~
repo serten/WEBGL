@@ -1,0 +1,287 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        
+         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">        
+        <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+        <style type="text/css">
+            
+            .panel-curved
+            {
+                border-radius: 10px;
+                
+            }
+            
+           
+                
+            .btn-quote
+            {
+                background-image: linear-gradient(180deg, #4188be,#2F608A)
+            }
+            .btn-quote:hover
+            {
+                background-image: linear-gradient(180deg, #346998,#274f72)
+            }
+            .btn-quote:active
+            {
+                background-image: linear-gradient(180deg, #21425f,#21425f)
+            }
+            
+            .grayGrad
+            {
+                background-image: linear-gradient(180deg, #ffffff,#e6e6e6)
+            }
+            .grayGrad:hover
+            {
+                background-image: linear-gradient(180deg, #f2f2f2,#cccccc)
+            }
+            .grayGrad:active
+            {
+                background-image: linear-gradient(180deg, #b3b3b3,#b3b3b3)
+            }
+            
+            
+            
+            body{
+                font-size: 12px;
+                background-image: url("http://wallpaper.pickywallpapers.com/1280x720/blue-background.jpg");
+            }
+            
+            
+            td{
+                padding:10px;
+                white-space: nowrap;
+            }
+            
+              .carousel-inner > .item > img,
+              .carousebl-inner > .item > a > img {
+                  width: 100%;
+                  margin: 0px;
+              }
+            
+            .st_gap{
+                margin-bottom:20px;
+            }
+            
+            @media all and (max-device-width: 800px) {
+                .deleteMobile { display: none; }
+                .forMobile { float: none; width: auto; }
+            }
+
+            /* Component containers
+            ----------------------------------*/
+            .ui-widget-content { border: 1px solid #dddddd; background: white; color: black; }
+            .ui-widget-content a { color: #362b36; }
+            .ui-autocomplete { position: absolute; cursor: default; }	
+            .ui-menu {
+                list-style:none;
+                padding: 0px;
+                margin: 0;
+                display:block;
+                float: left;
+                border-radius:0px;
+            }
+            .ui-menu .ui-menu-item {
+                margin:0;
+                padding: 4px;
+                zoom: 1;
+                float: left;
+                clear: left;
+                width: 100%;
+            }
+
+            .ui-menu .ui-menu-item:hover,.ui-menu .ui-menu-item:active
+            {
+                background-color:lightgray;
+            }
+            .ui-helper-hidden-accessible { 
+                display: none;
+                visibility: hidden;
+            }
+
+        </style>
+        
+    </head>
+    <body>                   
+        <div class="container">
+          <br>
+          <div class="panel panel-default panel-curved">
+            <div class="panel-body">
+                <h5 align="center"><b>Stock Market Search</b></h5>
+                
+               
+                    <div class="form-group">
+                        <form id="quoteForm">
+                            <div class="row">
+                                <div class="col-sm-3 col-xs-12 st_gap" >
+                                    <b>Enter the stock name or symbol:<span style="color:red">*</span></b>
+                                </div>
+                                <div class="col-sm-6 col-xs-12 st_gap">
+                                    <input type="text" style="font-size:12px;height:30px" class="form-control" id="queryInput" 
+                                           placeholder="Apple Inc or AAPL" oninput="resetValues()" required>
+                                </div>
+                                <div class="col-sm-3 col-xs-12 st_gap">
+                                    <button type ="submit"
+                                            class="btn btn-primary btn-sm btn-quote" onclick="quoteClicked()">
+                                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                        Get Quote
+                                    </button>
+                                    <button class="btn btn-default btn-sm grayGrad">
+                                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                                        Clear                                        
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                         <div class="row">
+                            <div class="col-sm-3 col-xs-12"></div>
+                            <div class="col-sm-6 col-xs-12" id="errorLog" value="0" style="color:red"></div>
+                            <div class="col-sm-3 col-xs-12">
+                                Powered by: <img style="width:110px;height:25px;" 
+                                                 src="http://cs-server.usc.edu:45678/hw/hw8/images/mod-logo.png">
+                            </div>
+                        </div>
+ 
+                    </div>
+                
+            </div>
+           
+          </div>
+          <hr>
+       
+                <div id="myCarousel" class="carousel slide" data-interval="false">
+                    <div class="carousel-inner" role="listbox">
+                        
+                          <div class="item active">
+                               <div class="panel panel-default panel-curved">
+                                    <div class="panel-body">
+                                          <div class="panel panel-default">
+                                                <div class="panel-heading" style="padding-bottom:0px" align="left">
+                                                    Favorite List 
+                                                    <div align="right" style="margin-bottom:0px;margin-top:-20px;">
+                                                        <span class="deleteMobile">Automatic Refresh:</span>
+                                                        <input type="checkbox" data-size="small" data-toggle="toggle">
+                                                        &nbsp;
+                                                        <button class="btn btn-default btn-sm grayGrad">
+                                                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                                                        </button>
+                                                        <button class="btn btn-default btn-sm grayGrad " style="margin-right:0px"
+                                                                href="#myCarousel" data-slide="next">
+                                                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="panel-body">
+                                                </div>
+                                          </div>
+                                   </div>
+                              </div>
+                          </div>
+
+                          <div class="item">
+                               <div class="panel panel-default panel-curved">
+                                    <div class="panel-body">
+                                          <div class="panel panel-default">
+                                            <div class="panel-heading" style="padding-bottom:0px" align="center">
+                                                Stock Details
+                                                <div align="left"style="margin-bottom:0px;margin-top:-20px;" >
+                                                    <button class="btn btn-default btn-sm grayGrad" style="margin-right:0px"
+                                                            href="#myCarousel" data-slide="prev"> 
+                                                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="panel-body">
+                                            </div>
+                                          </div>
+                                   </div>
+                              </div>
+                          </div>
+                        
+                    </div>
+              </div>   
+            </div>
+           
+    <!-- Latest compiled and minified JavaScript -->
+       
+        <script src="http://code.jquery.com/jquery-2.2.2.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+        <script type="text/javascript">
+              
+            
+            $(function() {
+
+                $("#queryInput")
+                    .focus()
+                    .autocomplete({
+                        source: function(request,response) {
+                            $.ajax({
+
+                                url: "http://dev.markitondemand.com/api/v2/Lookup/json",
+                                dataType: "jsonp",
+                                data: {
+                                    input: request.term
+                                },
+                                success: function(data) {
+                            
+                                    
+                                    response( $.map(data, function(item) {
+                                        return {
+                                            label: item.Symbol + " - " + item.Name + " ( " +item.Exchange+ " )",
+                                            value: item.Symbol
+                                        }
+                                    }));
+
+                                }
+                            });
+                        },
+                        minLength: 1,
+                        select: function( event, ui ) {
+					        document.getElementById("errorLog").setAttribute("value","1");					       
+				        },
+                        open: function() {
+                            document.getElementById("errorLog").setAttribute("value","0");
+                            document.getElementById("errorLog").innerHTML="";
+                            
+                        },
+                        close: function() {
+                            
+                        }
+                    });
+	       });
+            
+            function quoteClicked()
+            {
+                if(
+                    ($("#errorLog").attr("value")=="0")&&
+                    (document.getElementById("queryInput").value!="")
+                )
+                {
+                    
+                    document.getElementById("errorLog").innerHTML="Select a valid entry";
+                }
+                if($("#errorLog").attr("value")=="1")
+                {
+                    document.getElementById("errorLog").innerHTML="";
+                }
+            }
+            function resetValues()
+            {
+                document.getElementById("errorLog").setAttribute("value","0");
+                document.getElementById("errorLog").innerHTML="";
+            }
+            $("#quoteForm").submit(function(e) {
+                e.preventDefault();
+            });
+        </script>
+    </body>    
+</html>
+
+<!--
+document.getElementById("errorLog").setAttribute("value","1");
+undefined
+$("#errorLog").attr("value")-->

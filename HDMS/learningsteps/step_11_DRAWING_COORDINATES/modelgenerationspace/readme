@@ -1,0 +1,7 @@
+-this program generates coordinates, surface normal and texture coordinates of objects
+which are created by Maya.
+
+-the output is "filename".js
+
+-Ex: file name is building
+

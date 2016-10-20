@@ -1,0 +1,62 @@
+<html>
+	<head>
+	  <meta name="viewport" content="width=device-width, initial-scale=1">
+	  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	  <script type="text/javascript" src="createMesh.js"></script>
+
+		<script>
+			var xmlhttp = new XMLHttpRequest();
+			var url = "http://localhost/learningsteps/step_11_DRAWING_COORDINATES/step11.php";
+			var txt;
+			xmlhttp.onreadystatechange = function() {
+			    if (xmlhttp.status == 200) {
+				var result = xmlhttp.responseText;
+				txt=JSON.parse(result); 
+				
+				var countries = [];       
+				var verticeArray = [];
+				var normalArray = [];
+				var txtArray = [];
+	
+
+				for(var country=0;country<txt.var.length;country++)
+				{
+					for(coordinate=0;coordinate<txt.var[country].length;coordinate++)
+					{
+
+						verticeArray.push(txt.var[country][coordinate][0]);
+						verticeArray.push(txt.var[country][coordinate][0]);
+						verticeArray.push(0.0);
+			
+						normalArray.push(0.0);
+						normalArray.push(0.0);
+						normalArray.push(1.0);
+
+						txtArray.push(0.0);
+						txtArray.push(1.0);
+
+					}
+				}
+				
+				var countries = {"meshId"  : "countries", "vertices": verticeArray,"normals": normalArray,"textureCoordinates": txtArray};
+				
+				}
+				
+			    
+			};
+			xmlhttp.open("GET", url, true);
+			xmlhttp.send();
+
+
+		</script>
+	</head>
+	<body>
+		<div id="demo"></div>
+		<div id="id00"></div>
+		<div id="id01"></div>
+		<p id="demo"></p>
+	</body>
+
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+
+		#framerate {
+		  position: absolute;
+		  top: 10px;
+		  left: 10px;
+		  background-color: rgba(0,0,0,0.3);
+		  padding: 1em;
+		  color: white;
+			}
+		#framerate2 {
+		  position: absolute;
+		  top: 10px;
+		  left: 200px;
+		  background-color: rgba(0,0,0,0.3);
+		  padding: 1em;
+		  color: white;
+			}
+		</style>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script type="text/javascript" src="webgl-utils.js"></script>
+		<script type="text/javascript" src="initShaders.js"></script>
+		<script type="text/javascript" src="newvr.js"></script>
+		<script type="text/javascript" src="MV.js"></script>
+		<script type="text/javascript" src="gamepad.js"></script>
+		<script type="text/javascript" src="mesh/teapot.js"></script>
+		<script type="text/javascript" src="mesh/floor.js"></script>
+		<script type="text/javascript" src="mesh/cow.js"></script>
+		<script type="text/javascript" src="mesh/sky.js"></script>
+		<script type="text/javascript" src="mesh/box.js"></script>
+		<script type="text/javascript" src="mesh/degisik.js"></script>
+		<script type="text/javascript" src="mesh/wall.js"></script>
+		<script type="text/javascript" src="mesh/altzemin.js"></script>
+		<script type="text/javascript" src="mesh/lightobject.js"></script>
+		<script type="text/javascript" src="mesh/axis.js"></script>
+		<script type="text/javascript" src="mesh/ground.js"></script>
+		<script type="text/javascript" src="mesh/cati.js"></script>
+		<script type="text/javascript" src="mesh/skyball.js"></script>
+		<script type="text/javascript" src="mesh/building.js"></script>
+		<script type="text/javascript" src="mesh/bistin.js"></script>
+		<script type="text/javascript" src="vertexShader.js"></script>
+		<script type="text/javascript" src="fragmentShader.js"></script>
+
+		<script id="vertex-shader" type="x-shader/x-vertex">
+
+			attribute vec4 vPosition;
+			attribute vec4 vPosition1;
+			attribute vec3 vNormal;
+			attribute vec2 vTexCoord;
+            		varying vec3 interpolatedNormal;
+            		varying vec4 interpolatedPosition;
+
+			varying vec2 texCoord;
+			//uniform float texOn;
+			//varying float tex;
+			attribute vec4 vColor;
+			//varying vec4 fColor;
+
+
+			uniform mat4 Translation;
+			uniform mat4 Rotation;
+			uniform mat4 AnimationTranslation;
+			uniform mat4 AnimationRotation;
+
+			uniform mat4 Xiw;
+			uniform mat4 XiwNormal;
+			uniform mat4 Projection;
+			void main()
+			{
+
+				vec4 mvPosition =vec4( AnimationTranslation*Translation*AnimationRotation*Rotation*vPosition);
+    				gl_Position = vec4(Projection * Xiw*mvPosition);
+				//gl_Position=vec4(Xiw*AnimationTranslation*Translation*AnimationRotation*Rotation*vPosition);
+				vec3 transformedNormal = vec3( normalize( AnimationRotation*Rotation*vec4(vNormal.xyz,1.0)).xyz);
+
+
+                		interpolatedNormal=transformedNormal;
+                		interpolatedPosition=mvPosition;
+				//gl_Position.y*=sqrt(vTexCoord.s*vTexCoord.s+vTexCoord.t*vTexCoord.t);
+				texCoord = vTexCoord;
+
+			}
+		</script>
+
+		<script id="fragment-shader" type="x-shader/x-fragment">
+
+			precision highp float;
+			varying vec3 interpolatedNormal;
+			varying vec4 interpolatedPosition;
+			//varying vec4 fColor;
+			varying vec2 texCoord;
+			uniform sampler2D texture;
+			uniform sampler2D bumpTexture;
+			uniform float tex;
+			uniform float bump;
+
+           	 	uniform vec4 LightPosition0;
+			uniform vec4 LightColor0;
+			uniform vec4 LightPosition1;
+			uniform vec4 LightColor1;
+			uniform vec4 LightPosition2;
+			uniform vec4 LightColor2;
+			uniform vec4 LightPosition3;
+			uniform vec4 LightColor3;
+			uniform vec4 LightPosition4;
+			uniform vec4 LightColor4;
+			uniform float NumberOfLights;
+			uniform vec3 Eye;
+
+           		uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;
+			uniform float Shininess;
+
+
+			void main()
+			{
+				vec4 fColor;
+			    	vec4 color=vec4(0.0,0.0,0.0,1.0);
+				vec4 ambient = AmbientProduct;
+                		int index=int(NumberOfLights);
+				for(int i=0;i<1;i++)
+				{
+				vec3 L;
+				if(i==0)
+					L = normalize((LightPosition0).xyz);
+				else if(i==1)
+					L = normalize((LightPosition1).xyz);
+				else if(i==2)
+					L = normalize((LightPosition2).xyz);
+				else if(i==3)
+					L = normalize((LightPosition3).xyz);
+				else if(i==4)
+					L = normalize((LightPosition4).xyz);
+
+				//vec3 E = normalize(Eye);
+				//vec4 nn =vec4(vNormal.xyz,1.0);
+
+				/*vec3 N = normalize(transformedNormal);
+
+				float NL = dot(L,N);
+				float NE = dot(E,N);
+
+				if((NE>0.0)&&(NL>0.0))
+				{
+
+				}
+				if((NE<0.0)&&(NL<0.0))
+				{
+					NL=dot(-N,L);
+				}
+				if(NE*NL<0.0)
+				{
+					NL=0.0;
+				}
+				vec4 diffuse = NL * DiffuseProduct ;
+
+				vec3 R = normalize ((2.0*NL*N)-L);
+				float Ks =pow(dot(R,E),Shininess); //pow ( max (dot ( N, H ), 0.0), Shininess );
+
+				vec4 specular = Ks * SpecularProduct;
+				if ( dot( L, N ) < 0.0 )
+					specular =vec4 (0.0, 0.0, 0.0, 1.0);
+				if ( dot( R,E ) < 0.0 )
+					specular =vec4 (0.0, 0.0, 0.0, 1.0);
+
+				*/
+				/*float deltax=(mvPosition.x-LightPosition0.x);
+				float deltay=(interpolatedPosition.y-LightPosition0.y);
+				float deltaz=(interpolatedPosition.z-LightPosition0.z);
+
+				float delta=100.0-sqrt(deltax*deltax+deltay*deltay+deltaz*deltaz);
+				delta=delta/100.0;*/
+				//fColor = delta*(ambient + diffuse + specular);
+
+
+				//Point light section
+				vec3 lightDirection;
+				if(i==0)
+					lightDirection = normalize(LightPosition0.xyz - interpolatedPosition.xyz);
+				else if(i==1)
+					lightDirection = normalize(LightPosition1.xyz -interpolatedPosition.xyz);
+				else if(i==2)
+					lightDirection = normalize(LightPosition2.xyz - interpolatedPosition.xyz);
+				else if(i==3)
+					lightDirection = normalize(LightPosition3.xyz - interpolatedPosition.xyz);
+				else if(i==4)
+					lightDirection = normalize(LightPosition4.xyz - interpolatedPosition.xyz);
+
+				if(bump == 1.0)
+				{
+				vec4 bumpColor = texture2D(bumpTexture,vec2(texCoord.s,1.0-texCoord.t));
+				vec4 bumpNormal;
+				bumpNormal.xyz = (2.0 * bumpColor.rgb) - 1.0;
+				bumpNormal.y=1.0-bumpNormal.y;
+				bumpNormal.x=1.0-bumpNormal.x;
+				bumpNormal.z=1.0-bumpNormal.z;
+				vec3 N = normalize (bumpNormal.xyz);
+				color = LightColor0 * max(dot(N, lightDirection), 0.0);
+				}
+				else
+				{
+
+
+				float directionalLightWeighting = max(dot(interpolatedNormal, lightDirection), 0.0);
+
+
+				if(i==0)
+					color = ( LightColor0 * directionalLightWeighting  );//* delta;
+				else if(i==1)
+					color += ( LightColor1 * directionalLightWeighting  );//* delta;
+				else if(i==2)
+					color += (LightColor2 * directionalLightWeighting  );//* delta;
+				else if(i==3)
+					color += ( LightColor3 * directionalLightWeighting  );//* delta;
+				else if(i==4)
+					color += ( LightColor4 * directionalLightWeighting  );//* delta;
+				}
+				}
+				fColor=color+ambient;
+				fColor.a = 1.0;
+
+
+
+
+
+
+				 if( (tex==1.0))
+
+				 	gl_FragColor =fColor*texture2D(texture,vec2(texCoord.s,1.0-texCoord.t));
+				else
+					gl_FragColor = fColor;
+
+
+
+
+			}
+
+		</script>
+	<head>
+
+	<body>
+		<canvas id="gl-canvas" width="1024" height="512" style="width:100%;height:100%;">
+
+		</canvas>
+
+<div id="framerate"></div>
+<div id="framerate2"></div>
+<!--			<div id ="X" width="100px" height="100px"></div>
+			<div id ="Y" width="100px" height="100px"></div>
+			<div id ="Z" width="100px" height="100px"></div>
+
+	<HR/>
+		<!--<b>OBJECT POSITION</b>
+		<button id="obj+x" onclick="objFunction(0,0.1);">pos+x</button>
+		<button id="obj-x" onclick="objFunction(0,-0.1);">pos-x</button>
+		<button id="obj+y" onclick="objFunction(1,0.1);">pos+y</button>
+		<button id="obj-y" onclick="objFunction(1,-0.1);">pos-y</button>
+		<button id="obj+z" onclick="objFunction(2,0.1);">pos+z</button>
+		<button id="obj-z" onclick="objFunction(2,-0.1);">pos-z</button>
+		<hr/>
+		<b>CAMERA POSITION</b>
+		<button id="pos+x" onclick="posFunction(0,0.1);">pos+x</button>
+		<button id="pos-x" onclick="posFunction(0,-0.1);">pos-x</button>
+		<button id="pos+y" onclick="posFunction(1,0.1);">pos+y</button>
+		<button id="pos-y" onclick="posFunction(1,-0.1);">pos-y</button>
+		<button id="pos+z" onclick="posFunction(2,0.1);">pos+z</button>
+		<button id="pos-z" onclick="posFunction(2,-0.1);">pos-z</button>
+		<hr/>
+		<b>CAMERA LOOKAT</b>
+		<button id="look+x" onclick="lookFunction(0,0.1);">look+x</button>
+		<button id="look-x" onclick="lookFunction(0,-0.1);">look-x</button>
+		<button id="look+y" onclick="lookFunction(1,0.1);">look+y</button>
+		<button id="look-y" onclick="lookFunction(1,-0.1);">look-y</button>
+		<button id="look+z" onclick="lookFunction(2,0.1);">look+z</button>
+		<button id="look-z" onclick="lookFunction(2,-0.1);">look-z</button>-->
+<!--
+	<div id="ss"></div>
+	<div id="framerate"></div>
+		<hr/>
+		<table >
+			<tr>
+				<th>posX:</th>
+				<td id="posX"></td>
+
+				<th>posY:</th>
+				<td id="posY"></td>
+
+				<th>posZ:</th>
+				<td id="posZ"></td>
+				<th>Note:</th>
+				<td style="color:blue;" >1- Arrow Keys to change view-angle; 2- WASD to walk around; 3- Pageup/down
+							to increase/decrease height; 4- Z for zoom-in, X for zoom-out</td>
+			</tr>
+
+			<tr>
+				<th>lookX:</th>
+				<td id="lookX"></td>
+
+				<th>lookY:</th>
+				<td id="lookY"></td>
+
+				<th>lookZ:</th>
+				<td id="lookZ"></td>
+			</tr>
+			<tr>
+				<th>upX:</th>
+				<td id="upX"></td>
+
+				<th>upY:</th>
+				<td id="upY"></td>
+
+				<th>upZ:</th>
+				<td id="upZ"></td>
+			</tr>
+
+
+		</table>
+-->
+<p style="color:blue;" >1- Arrow Keys to change view-angle; 2- WASD to walk around; 3- Pageup/down
+							to increase/decrease height; 4- Z for zoom-in, X for zoom-out</p>
+<div id="gamepadPrompt"></div>
+<div id="gamepadDisplay"></div>
+
+
+	</body>
+
+
+
+</html>
+

@@ -1,0 +1,21 @@
+# This file uses centimeters as units for non-parametric coordinates.
+
+mtllib ustzemin.mtl
+g default
+v -9.914393 7.022872 -9.795477
+v 10.085607 7.022872 -9.795477
+v 10.085607 7.022872 10.204523
+v -9.914393 7.022872 10.204523
+vt 0.000000 0.000000
+vt 1.000000 0.000000
+vt 1.000000 1.000000
+vt 0.000000 1.000000
+vn 0.000000 -1.000000 0.000000
+vn 0.000000 -1.000000 0.000000
+vn 0.000000 -1.000000 0.000000
+vn 0.000000 -1.000000 0.000000
+s 1
+g pasted__polySurface2 pasted__pCube1 group
+usemtl pasted__lambert2SG
+f 1/1/1 2/2/2 4/4/3
+f 4/4/3 2/2/2 3/3/4

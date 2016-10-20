@@ -1,0 +1,24 @@
+window, document, body
+{
+    margin: 0px;
+    padding: 0px;
+    left: 0px;
+    top: 0px;
+    border: 0px;
+}
+#error
+{
+    position:fixed; width: 100%; height: 100%; top : 0px; left:0px; background-color:black;
+    visibility: hidden;
+}
+h1
+{
+    color: white;
+    text-align: center;
+}
+#debug
+{
+    position:fixed; width: 100%; height: 100%; top : 0px; left:0px;
+    color: white;
+    visibility: hidden;
+}
